@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}配置列表{% endblock %}
+{% block include %}
+    <link rel="stylesheet" href="/static/AdminLTE/plugins/jsgrid/jsgrid.min.css">
+    <link rel="stylesheet" href="/static/AdminLTE/plugins/jsgrid/jsgrid-theme.min.css">
+    <script src="/static/AdminLTE/plugins/jsgrid/jsgrid.min.js"></script>
+{% endblock %}
 {% block pageTitle %}配置列表{% endblock %}
 {% block float_right %}
     <button onclick="refresh()" type="button" class="btn btn-primary"><i class="fas fa-sync"></i></button>&nbsp;&nbsp;
