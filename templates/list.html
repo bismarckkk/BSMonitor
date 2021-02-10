@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}配置列表{% endblock %}
+{% block pageTitle %}配置列表{% endblock %}
+{% block float_right %}
+    <button onclick="refresh()" type="button" class="btn btn-primary"><i class="fas fa-sync"></i></button>&nbsp;&nbsp;
+    <button onclick="window.location='/edit'" type="button" class="btn btn-primary">新增</button>
+{% endblock %}
+{% block main %}
+    <div id="jsgrid1">
+    </div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript">
+        const statuss = [
+            {Name: "未连接", Id: 0},
+            {Name: "已连接", Id: 1},
+            {Name: "出现错误", Id: 1}
+        ];
+
+        $.getJSON('/pList', function (data) {
+            console.log(data)
+            $(function () {
+                $("#jsgrid1").jsGrid({
+                    width: "100%",
+                    inserting: false,
+                    editing: false,
+                    sorting: true,
+                    autoload: false,
+                    data: data,
+                    align: "center",
+                    fields: [
+                        {name: "name", width: "25%", align: "center", title: "配置名称", type: "text"},
+                        {
+                            name: "status",
+                            width: "25%",
+                            align: "center",
+                            title: "配置状态",
+                            type: "select",
+                            items: statuss,
+                            valueField: "Id",
+                            textField: "Name"
+                        },
+                        {
+                            name: "oper", width: "50%", align: "center", type: "text", title: "操作", sorting: false,
+                            itemTemplate: function (value, item) {
+                                console.log(value, item)
+                                switch (item.status) {
+                                    case 1:
+                                        return '<a href="javascript:void(0);" onclick="unconnect(\'' + item.name + '\')"\>断开连接</a\>'
+                                    case 0:
+                                        return '<a href="javascript:void(0);" onclick="connect(\'' + item.name + '\')"\>连接</a\>&nbsp; &nbsp;' +
+                                            '<a href="/edit?p=' + item.name + '"\>编辑</a\>'
+                                    case 2:
+                                        return '<a href="javascript:void(0);" onclick="connect(\'' + item.name + '\')"\>重新连接</a\>&nbsp; &nbsp;' +
+                                            '<a href="javascript:void(0);" onclick="showError(\'' + item.name + '\')"\>查看错误报告</a\>'
+                                }
+                            }
+                        }
+                    ]
+                });
+            })
+        })
+
+        function refresh() {
+            $.getJSON('pList', function (d) {
+                $('#jsgrid1').jsGrid({
+                    data: d
+                })
+            })
+        }
+
+        function connect(name) {
+            $.get('/start?p=' + name, function (data) {
+                showBox(data)
+                refresh()
+            })
+        }
+
+        function unconnect(name) {
+            $.get('/stop?p=' + name, function (data) {
+                showBox(data)
+                refresh()
+            })
+        }
+
+        function showError(name) {
+            $.get('/errorInfo?p=' + name, function (data) {
+                showBox(data)
+            })
+        }
+    </script>
+{% endblock %}
