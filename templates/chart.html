@@ -1,14 +1,209 @@
 {% extends "base.html" %}
 {% block title %}数据监控{% endblock %}
+{% block include %}
+    <script src="/static/echarts.min.js"></script>
+    <script src="/static/socket.io.min.js"></script>
+{% endblock %}
+{% block pageTitle %}数据监控{% endblock %}
+{% block float_right %}
+    <button onclick="connectLast()" type="button" class="btn btn-primary">重连最后连接设备</button>&nbsp;&nbsp;
+    <button onclick="stopAll()" type="button" class="btn btn-primary">断开所有设备</button>&nbsp;&nbsp;
+    <button onclick="clear2()" type="button" class="btn btn-primary">清空</button>&nbsp;&nbsp;
+    <div id="pause">
+        <button onclick="pause1()" type="button" class="btn btn-primary"><i class="fas fa-pause"></i></button>
+    </div>
+    <div id="play" style="display: none">
+        <button onclick="play1()" type="button" class="btn btn-primary"><i class="fas fa-play"></i></button>
+    </div>
+{% endblock %}
 {% block main %}
-    <div class="error-page">
-        <h2 class="headline text-red"> 500</h2>
-        <div class="error-content">
-            <h3><i class="fas fa-exclamation-triangle text-danger"></i> 服务器内部错误</h3>
-            <p>
-                在访问您要求的界面时发生了异常错误
-                您可以点击 <a href="/">此处</a> 返回首页
-            </p>
+    <div class="row">
+        <div class="col-md-12">
+            <div id="chart"></div>
         </div>
     </div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript">
+        var paused = false
+
+        function connectLast() {
+            $.get('/startLast', function (data) {
+                showBox(data)
+            })
+        }
+
+        function stopAll() {
+            showBox('正在处理，请稍后...')
+            $.get('/stopAll', function (data) {
+                showBox(data)
+            })
+        }
+
+        function pause1() {
+            paused = true
+            $('#pause').hide()
+            $('#play').show()
+            chart.setOption({dataZoom: [{show: true}]})
+        }
+
+        function play1() {
+            paused = false
+            $('#pause').show()
+            $('#play').hide()
+            chart.setOption({dataZoom: [{show: false}]})
+        }
+
+        var height = document.documentElement.clientHeight
+        var tarH = (height - 210).toString() + "px"
+        document.getElementById('chart').style.height = tarH
+        let chart = echarts.init(document.getElementById('chart'))
+
+        var options = option = {
+            xAxis: {
+                type: 'value'
+            },
+            yAxis: {
+                type: 'value'
+            },
+            grid: {
+                left: 30,
+                right: 10,
+                top: 8,
+                bottom: 20
+            },
+            legend: {},
+            tooltip: {
+                trigger: 'axis'
+            },
+            dataZoom: [{}]
+        };
+
+        chart.setOption(options)
+
+        var data = []
+
+        function updateData(d) {
+            var option = {series: [], dataZoom: []}
+            var started = false
+            if (data.length === 0) {
+                started = true
+            }
+            var keys = Object.keys(d)
+            for (var i = 0; i < keys.length; i++) {
+                let name = keys[i]
+                var finded = false
+                for (var j = 0; j < data.length; j++) {
+                    if (data[j].name === name) {
+                        finded = true
+                        data[j].data.push.apply(data[j].data, d[name])
+                    }
+                }
+                if (!finded) {
+                    data.push({
+                        type: 'line',
+                        name: name,
+                        data: d[name],
+                        sampling: 'lttb',
+                        showSymbol: false
+                    })
+                }
+            }
+            option.series = data
+            var min = data[0].data[0][0]
+            var max = data[0].data[0][0]
+            for (var i = 0; i < data.length; i++) {
+                for (var j = 0; j < data[i].data.length; j++) {
+                    if (data[i].data[j][0] > max) {
+                        max = data[i].data[j][0]
+                    }
+                    if (data[i].data[j][0] < min) {
+                        min = data[i].data[j][0]
+                    }
+                }
+            }
+            if (max - min < 20) {
+                option.dataZoom = [{
+                    show: false,
+                    startValue: min,
+                    endValue: min + 20
+                }]
+                option.xAxis = {
+                    max: min + 20
+                }
+            } else {
+                option.dataZoom = [{
+                    show: false,
+                    startValue: max - 20,
+                    endValue: max
+                }]
+                option.xAxis = {
+                    max: max
+                }
+            }
+            if (max - min > 300) {
+                clear2()
+            }
+            if (started) {
+                option.xAxis = {min: min}
+            }
+            console.log(option)
+            chart.setOption(option)
+        }
+
+        function clear2() {
+            var option = {}
+            var min = data[0].data[0][0]
+            for (var i = 0; i < data.length; i++) {
+                for (var j = 0; j < data[i].data.length; j++) {
+                    if (data[i].data[j][0] < min) {
+                        min = data[i].data[j][0]
+                    }
+                }
+            }
+            option.dataZoom = [{
+                show: false,
+                startValue: min,
+                endValue: min + 20
+            }]
+            option.xAxis = {
+                max: min + 20,
+                min: min
+            }
+            data = []
+            option.series = data
+            chart.setOption(option)
+        }
+
+        window.onresize = function () {
+            var height = document.documentElement.clientHeight
+            tarH = (height - 210).toString() + "px"
+            chart.resize({height: tarH})
+        }
+
+        $('#menu').click(function () {
+            setTimeout(function () {
+                var height = document.documentElement.clientHeight
+                tarH = (height - 210).toString() + "px"
+                chart.resize({height: tarH})
+            }, 300)
+        })
+
+        const websocket_url = 'http"//' + document.domain + ':' + location.port + '/ws';
+        const socket = io('/ws');
+        socket.on('data', function (data) {
+            if (!paused) {
+                updateData(data)
+            }
+        })
+        socket.on('error', function () {
+            showBox('出现异常错误<br/>错误信息请至配置列表或服务器后端查看')
+        })
+        socket.on('disconnect', function () {
+            showBox('与服务器的连接异常断开，请刷新网页重新连接')
+        })
+        socket.on('connect_error', function () {
+            showBox('与服务器的连接异常断开，请刷新网页重新连接')
+        })
+    </script>
 {% endblock %}

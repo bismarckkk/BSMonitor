@@ -9,5 +9,4 @@ class Pub(Base):
 
     def m(self):
         self.put({'d1': random.random()})
-        print('put!')
         time.sleep(1)

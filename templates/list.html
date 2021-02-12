@@ -34,10 +34,10 @@
                     data: data,
                     align: "center",
                     fields: [
-                        {name: "name", width: "25%", align: "center", title: "配置名称", type: "text"},
+                        {name: "name", width: "30%", align: "center", title: "配置名称", type: "text"},
                         {
                             name: "status",
-                            width: "25%",
+                            width: "30%",
                             align: "center",
                             title: "配置状态",
                             type: "select",
@@ -46,17 +46,16 @@
                             textField: "Name"
                         },
                         {
-                            name: "oper", width: "50%", align: "center", type: "text", title: "操作", sorting: false,
+                            name: "oper", width: "40%", align: "center", type: "text", title: "操作", sorting: false,
                             itemTemplate: function (value, item) {
-                                console.log(value, item)
                                 switch (item.status) {
                                     case 1:
                                         return '<a href="javascript:void(0);" onclick="unconnect(\'' + item.name + '\')"\>断开连接</a\>'
                                     case 0:
-                                        return '<a href="javascript:void(0);" onclick="connect(\'' + item.name + '\')"\>连接</a\>&nbsp; &nbsp;' +
+                                        return '<a href="javascript:void(0);" onclick="connect(\'' + item.name + '\')"\>连接</a\>&nbsp; &nbsp;&nbsp; &nbsp;' +
                                             '<a href="/edit?p=' + item.name + '"\>编辑</a\>'
                                     case 2:
-                                        return '<a href="javascript:void(0);" onclick="connect(\'' + item.name + '\')"\>重新连接</a\>&nbsp; &nbsp;' +
+                                        return '<a href="javascript:void(0);" onclick="connect(\'' + item.name + '\')"\>重新连接</a\>&nbsp; &nbsp;&nbsp; &nbsp;' +
                                             '<a href="javascript:void(0);" onclick="showError(\'' + item.name + '\')"\>查看错误报告</a\>'
                                 }
                             }
@@ -67,7 +66,7 @@
         })
 
         function refresh() {
-            $.getJSON('pList', function (d) {
+            $.getJSON('/pList', function (d) {
                 $('#jsgrid1').jsGrid({
                     data: d
                 })

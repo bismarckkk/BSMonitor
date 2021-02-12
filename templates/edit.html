@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}编辑配置{% endblock %}
+{% block pageTitle %}编辑配置{% endblock %}
+{% block main %}
+    <form action="/editSubmit" method="post">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">配置方法</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>请输入配置名</label>
+                            <input class="form-control" name="name" value="{{ name }}">
+                        </div>
+                        <div class="form-group">
+                            <label>请选择使用的配置方法</label>
+                            <select id="method" name="method" class="form-control">
+                                {% for it in methods %}
+                                    <option value="{{ it }}"
+                                            {% if it == selected %}selected="selected"{% endif %}>{{ it }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">下一步</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if showMore %}
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">详细配置</h3>
+                        </div>
+                        <div class="card-body">
+                            {% block form %}{% endblock %}
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">提交</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </form>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript">
+        function nextStep() {
+            let threadType = $('#method option:selected').val()
+            console.log(threadType)
+            window.location = '/edit?t=' + threadType
+        }
+    </script>
+{% endblock %}
