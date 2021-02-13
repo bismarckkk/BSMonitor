@@ -23,8 +23,9 @@
         <button onclick="play1()" type="button" class="btn btn-primary" title="继续"><i class="fas fa-play"></i></button>
     </div>
     <div id="stopA">
-        &nbsp;&nbsp;<button onclick="stopAll()" type="button" class="btn btn-primary" title="断开所有设备"><i class="fas fa-stop"></i>
-        </button>
+        &nbsp;&nbsp;<button onclick="stopAll()" type="button" class="btn btn-primary" title="断开所有设备"><i
+            class="fas fa-stop"></i>
+    </button>
     </div>
 {% endblock %}
 {% block main %}
@@ -270,7 +271,40 @@
                     console.log('animate close')
                     chart.setOption({animation: false})
                     animate = false
-                    updateData({})
+                    var option = {}
+                    var min = data[0].data[0][0]
+                    var max = data[0].data[0][0]
+                    for (var i = 0; i < data.length; i++) {
+                        for (var j = 0; j < data[i].data.length; j++) {
+                            if (data[i].data[j][0] > max) {
+                                max = data[i].data[j][0]
+                            }
+                            if (data[i].data[j][0] < min) {
+                                min = data[i].data[j][0]
+                            }
+                        }
+                    }
+                    if (max - min < 20) {
+                        option.dataZoom = [{
+                            show: false,
+                            startValue: min,
+                            endValue: min + 20
+                        }]
+                        option.xAxis = {
+                            max: min + 20
+                        }
+                    } else {
+                        option.dataZoom = [{
+                            show: false,
+                            startValue: max,
+                            endValue: max + 20
+                        }]
+                        option.xAxis = {
+                            max: max + 20
+                        }
+                        lastLeft = max
+                    }
+                    chart.setOption(option)
                 }
             }
         });
