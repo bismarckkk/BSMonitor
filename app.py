@@ -21,7 +21,7 @@ template_folder = os.path.join(path, 'templates')
 static_folder = os.path.join(path, 'static')
 app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
 app.config['SECRET_KEY'] = 'eagwbilgbewi'
-socketio = SocketIO(app, async_mode='gevent', logger=True, engineio_logger=True)
+socketio = SocketIO(app, async_mode='gevent') # , logger=True, engineio_logger=True)
 packs = packages.Packs(socketio)
 config = packages.Config()
 lastConnect = []
