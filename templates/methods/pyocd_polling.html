@@ -1,0 +1,196 @@
+{% extends 'edit.html' %}
+{% block form %}
+    <div class="form-group">
+        <label>keil工程文件所在路径</label>
+        <input class="form-control" name="path" value="{{ cfg['path'] }}">
+    </div>
+    <div class="form-group">
+        <label>采样频率（Hz）</label>
+        <input class="form-control" name="fre" value="{{ cfg['fre'] }}">
+    </div>
+    <br><label>输入的变量均需为全局变量，若为数组中的值则请输入数组名然后填写相应的字节偏移值</label>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>变量名称1</label>
+                <input class="form-control" name="var1" value="{{ cfg['var1'] }}">
+            </div>
+            <div class="form-group">
+                <label>变量名称2</label>
+                <input class="form-control" name="var2" value="{{ cfg['var2'] }}">
+            </div>
+            <div class="form-group">
+                <label>变量名称3</label>
+                <input class="form-control" name="var3" value="{{ cfg['var3'] }}">
+            </div>
+            <div class="form-group">
+                <label>变量名称4</label>
+                <input class="form-control" name="var4" value="{{ cfg['var4'] }}">
+            </div>
+            <div class="form-group">
+                <label>变量名称5</label>
+                <input class="form-control" name="var5" value="{{ cfg['var5'] }}">
+            </div>
+            <div class="form-group">
+                <label>变量名称6</label>
+                <input class="form-control" name="var6" value="{{ cfg['var6'] }}">
+            </div>
+            <div class="form-group">
+                <label>变量名称7</label>
+                <input class="form-control" name="var7" value="{{ cfg['var7'] }}">
+            </div>
+            <div class="form-group">
+                <label>变量名称8</label>
+                <input class="form-control" name="var8" value="{{ cfg['var8'] }}">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>字节偏移值1</label>
+                <input class="form-control" name="adr1"
+                       value="{% if cfg['adr1'] %} {{ cfg['adr1'] }} {% else %} 0 {% endif %}">
+            </div>
+            <div class="form-group">
+                <label>字节偏移值2</label>
+                <input class="form-control" name="adr2"
+                       value="{% if cfg['adr2'] %} {{ cfg['adr2'] }} {% else %} 0 {% endif %}">
+            </div>
+            <div class="form-group">
+                <label>字节偏移值3</label>
+                <input class="form-control" name="adr3"
+                       value="{% if cfg['adr3'] %} {{ cfg['adr3'] }} {% else %} 0 {% endif %}">
+            </div>
+            <div class="form-group">
+                <label>字节偏移值4</label>
+                <input class="form-control" name="adr4"
+                       value="{% if cfg['adr4'] %} {{ cfg['adr4'] }} {% else %} 0 {% endif %}">
+            </div>
+            <div class="form-group">
+                <label>字节偏移值5</label>
+                <input class="form-control" name="adr5"
+                       value="{% if cfg['adr5'] %} {{ cfg['adr5'] }} {% else %} 0 {% endif %}">
+            </div>
+            <div class="form-group">
+                <label>字节偏移值6</label>
+                <input class="form-control" name="adr6"
+                       value="{% if cfg['adr6'] %} {{ cfg['adr6'] }} {% else %} 0 {% endif %}">
+            </div>
+            <div class="form-group">
+                <label>字节偏移值7</label>
+                <input class="form-control" name="adr7"
+                       value="{% if cfg['adr7'] %} {{ cfg['adr7'] }} {% else %} 0 {% endif %}">
+            </div>
+            <div class="form-group">
+                <label>字节偏移值8</label>
+                <input class="form-control" name="adr8"
+                       value="{% if cfg['adr8'] %} {{ cfg['adr8'] }} {% else %} 0 {% endif %}">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>变量类型1</label>
+                <select name="cat1" class="form-control">
+                    <option value="int8" {% if cfg['cat1'] == 'int8' %}selected="selected"{% endif %}>int8</option>
+                    <option value="int16" {% if cfg['cat1'] == 'int16' %}selected="selected"{% endif %}>int16</option>
+                    <option value="uint8" {% if cfg['cat1'] == 'uint8' %}selected="selected"{% endif %}>uint8</option>
+                    <option value="uint16" {% if cfg['cat1'] == 'uint16' %}selected="selected"{% endif %}>uint16
+                    </option>
+                    <option value="float" {% if cfg['cat1'] == 'float' %}selected="selected"{% endif %}>float</option>
+                    <option value="double" {% if cfg['cat1'] == 'double' %}selected="selected"{% endif %}>double
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>变量类型2</label>
+                <select name="cat2" class="form-control">
+                    <option value="int8" {% if cfg['cat2'] == 'int8' %}selected="selected"{% endif %}>int8</option>
+                    <option value="int16" {% if cfg['cat2'] == 'int16' %}selected="selected"{% endif %}>int16</option>
+                    <option value="uint8" {% if cfg['cat2'] == 'uint8' %}selected="selected"{% endif %}>uint8</option>
+                    <option value="uint16" {% if cfg['cat2'] == 'uint16' %}selected="selected"{% endif %}>uint16
+                    </option>
+                    <option value="float" {% if cfg['cat2'] == 'float' %}selected="selected"{% endif %}>float</option>
+                    <option value="double" {% if cfg['cat2'] == 'double' %}selected="selected"{% endif %}>double
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>变量类型3</label>
+                <select name="cat3" class="form-control">
+                    <option value="int8" {% if cfg['cat3'] == 'int8' %}selected="selected"{% endif %}>int8</option>
+                    <option value="int16" {% if cfg['cat3'] == 'int16' %}selected="selected"{% endif %}>int16</option>
+                    <option value="uint8" {% if cfg['cat3'] == 'uint8' %}selected="selected"{% endif %}>uint8</option>
+                    <option value="uint16" {% if cfg['cat3'] == 'uint16' %}selected="selected"{% endif %}>uint16
+                    </option>
+                    <option value="float" {% if cfg['cat3'] == 'float' %}selected="selected"{% endif %}>float</option>
+                    <option value="double" {% if cfg['cat3'] == 'double' %}selected="selected"{% endif %}>double
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>变量类型4</label>
+                <select name="cat4" class="form-control">
+                    <option value="int8" {% if cfg['cat4'] == 'int8' %}selected="selected"{% endif %}>int8</option>
+                    <option value="int16" {% if cfg['cat4'] == 'int16' %}selected="selected"{% endif %}>int16</option>
+                    <option value="uint8" {% if cfg['cat4'] == 'uint8' %}selected="selected"{% endif %}>uint8</option>
+                    <option value="uint16" {% if cfg['cat4'] == 'uint16' %}selected="selected"{% endif %}>uint16
+                    </option>
+                    <option value="float" {% if cfg['cat4'] == 'float' %}selected="selected"{% endif %}>float</option>
+                    <option value="double" {% if cfg['cat4'] == 'double' %}selected="selected"{% endif %}>double
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>变量类型5</label>
+                <select name="cat5" class="form-control">
+                    <option value="int8" {% if cfg['cat5'] == 'int8' %}selected="selected"{% endif %}>int8</option>
+                    <option value="int16" {% if cfg['cat5'] == 'int16' %}selected="selected"{% endif %}>int16</option>
+                    <option value="uint8" {% if cfg['cat5'] == 'uint8' %}selected="selected"{% endif %}>uint8</option>
+                    <option value="uint16" {% if cfg['cat5'] == 'uint16' %}selected="selected"{% endif %}>uint16
+                    </option>
+                    <option value="float" {% if cfg['cat5'] == 'float' %}selected="selected"{% endif %}>float</option>
+                    <option value="double" {% if cfg['cat5'] == 'double' %}selected="selected"{% endif %}>double
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>变量类型6</label>
+                <select name="cat6" class="form-control">
+                    <option value="int8" {% if cfg['cat6'] == 'int8' %}selected="selected"{% endif %}>int8</option>
+                    <option value="int16" {% if cfg['cat6'] == 'int16' %}selected="selected"{% endif %}>int16</option>
+                    <option value="uint8" {% if cfg['cat6'] == 'uint8' %}selected="selected"{% endif %}>uint8</option>
+                    <option value="uint16" {% if cfg['cat6'] == 'uint16' %}selected="selected"{% endif %}>uint16
+                    </option>
+                    <option value="float" {% if cfg['cat6'] == 'float' %}selected="selected"{% endif %}>float</option>
+                    <option value="double" {% if cfg['cat6'] == 'double' %}selected="selected"{% endif %}>double
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>变量类型7</label>
+                <select name="cat7" class="form-control">
+                    <option value="int8" {% if cfg['cat7'] == 'int8' %}selected="selected"{% endif %}>int8</option>
+                    <option value="int16" {% if cfg['cat7'] == 'int16' %}selected="selected"{% endif %}>int16</option>
+                    <option value="uint8" {% if cfg['cat7'] == 'uint8' %}selected="selected"{% endif %}>uint8</option>
+                    <option value="uint16" {% if cfg['cat7'] == 'uint16' %}selected="selected"{% endif %}>uint16
+                    </option>
+                    <option value="float" {% if cfg['cat7'] == 'float' %}selected="selected"{% endif %}>float</option>
+                    <option value="double" {% if cfg['cat7'] == 'double' %}selected="selected"{% endif %}>double
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>变量类型8</label>
+                <select name="cat8" class="form-control">
+                    <option value="int8" {% if cfg['cat8'] == 'int8' %}selected="selected"{% endif %}>int8</option>
+                    <option value="int16" {% if cfg['cat8'] == 'int16' %}selected="selected"{% endif %}>int16</option>
+                    <option value="uint8" {% if cfg['cat8'] == 'uint8' %}selected="selected"{% endif %}>uint8</option>
+                    <option value="uint16" {% if cfg['cat8'] == 'uint16' %}selected="selected"{% endif %}>uint16
+                    </option>
+                    <option value="float" {% if cfg['cat8'] == 'float' %}selected="selected"{% endif %}>float</option>
+                    <option value="double" {% if cfg['cat8'] == 'double' %}selected="selected"{% endif %}>double
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+{% endblock %}

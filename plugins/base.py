@@ -5,14 +5,14 @@ try:
 except ImportError:
     import json
 import traceback
+from multiprocessing import Process
 
 
-class Base(Thread):
+class Base(Process):
     queue = None
     errorQueue = None
     time0 = 0
     path = ''
-    requestStop = False
     stop = False
 
     def __init__(self):
@@ -25,12 +25,18 @@ class Base(Thread):
         self.config = cfg
         self.name = name
 
+    def init(self):
+        pass
+
     def run(self):
-        while True:
+        try:
+            self.init()
+        except Exception:
+            self.errorQueue.put({'thread': self.name, 'error': traceback.format_exc()})
+            self.stop = True
+        while not self.stop:
             try:
                 self.m()
-                if self.requestStop:
-                    break
             except Exception:
                 self.errorQueue.put({'thread': self.name, 'error': traceback.format_exc()})
                 break

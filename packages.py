@@ -4,7 +4,7 @@ except:
     import json
 import importlib
 import os
-from queue import Queue
+from multiprocessing import Queue
 import time
 from threading import Thread
 import traceback
@@ -67,7 +67,7 @@ class Packs(Thread):
         path = os.path.realpath(__file__)
         self.path = os.path.dirname(path)
         self.errorQueue = Queue(maxsize=100)
-        files = os.listdir('./plugins')
+        files = os.listdir(os.path.join(self.path, 'plugins'))
         files.remove('base.py')
         self.time0 = time.time()
         for file in files:
@@ -79,13 +79,7 @@ class Packs(Thread):
 
     def stopThread(self, name):
         if name in self.packs.keys():
-            self.packs[name].requestStop = True
-            i = 0
-            while i < 100:
-                time.sleep(0.01)
-                if self.packs[name].stop:
-                    break
-                i += 1
+            self.packs[name].terminate()
             del self.packs[name]
             if name in self.error.keys():
                 del self.error[name]

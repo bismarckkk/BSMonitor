@@ -12,7 +12,7 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label>请输入配置名</label>
-                            <input class="form-control" name="name" value="{{ name }}">
+                            <input class="form-control" name="name" id="input-name" {% if name %} value="{{ name }}" {% endif %}>
                         </div>
                         <div class="form-group">
                             <label>请选择使用的配置方法</label>
@@ -25,7 +25,7 @@
                         </div>
                     </div>
                     <div class="card-footer">
-                        <button type="button" class="btn btn-primary" onclick="nextStep()">下一步</button>
+                        <button type="button" class="btn btn-primary float-right" onclick="nextStep()">下一步</button>
                     </div>
                 </div>
             </div>
@@ -41,7 +41,7 @@
                             {% block form %}{% endblock %}
                         </div>
                         <div class="card-footer">
-                            <button type="submit" class="btn btn-primary">提交</button>
+                            <button type="submit" class="btn btn-primary float-right">提交</button>
                         </div>
                     </div>
                 </div>
@@ -53,8 +53,8 @@
     <script type="text/javascript">
         function nextStep() {
             let threadType = $('#method option:selected').val()
-            console.log(threadType)
-            window.location = '/edit?t=' + threadType
+            let name = $('#input-name').val()
+            window.location = '/edit?t=' + threadType + '&n=' + name
         }
     </script>
 {% endblock %}

@@ -4,6 +4,7 @@
     <link rel="stylesheet" href="/static/AdminLTE/plugins/jsgrid/jsgrid.min.css">
     <link rel="stylesheet" href="/static/AdminLTE/plugins/jsgrid/jsgrid-theme.min.css">
     <script src="/static/AdminLTE/plugins/jsgrid/jsgrid.min.js"></script>
+    <script src="/static/socket.io.min.js"></script>
 {% endblock %}
 {% block pageTitle %}配置列表{% endblock %}
 {% block float_right %}
@@ -74,6 +75,7 @@
         }
 
         function connect(name) {
+            showBox('正在处理，请稍后...')
             $.get('/start?p=' + name, function (data) {
                 showBox(data)
                 refresh()
@@ -81,6 +83,7 @@
         }
 
         function unconnect(name) {
+            showBox('正在处理，请稍后...')
             $.get('/stop?p=' + name, function (data) {
                 showBox(data)
                 refresh()
@@ -92,5 +95,17 @@
                 showBox(data)
             })
         }
+
+        const socket = io('/ws');
+        socket.on('error', function (data) {
+            console.log(data)
+            showBox('出现异常错误<br/>错误信息请至配置列表或服务器后端查看')
+        })
+        socket.on('disconnect', function () {
+            showBox('与服务器的连接异常断开，请刷新网页重新连接')
+        })
+        socket.on('connect_error', function () {
+            showBox('与服务器的连接异常断开，请刷新网页重新连接')
+        })
     </script>
 {% endblock %}

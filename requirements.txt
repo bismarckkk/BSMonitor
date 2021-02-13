@@ -1,0 +1,10 @@
+qrcode
+ujson
+flask
+flask_socketio
+ujson
+gevent
+gevent-websocket
+importlib
+pyocd
+libusb

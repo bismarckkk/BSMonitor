@@ -13,9 +13,19 @@ except:
 from flask_socketio import SocketIO
 import os
 
-app = Flask(__name__)
+cname = socket.getfqdn(socket.gethostname())
+ip = socket.gethostbyname(cname)
+
+import eventlet
+
+
+path = os.path.realpath(__file__)
+path = os.path.dirname(path)
+template_folder = os.path.join(path, 'templates')
+static_folder = os.path.join(path, 'static')
+app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
 app.config['SECRET_KEY'] = 'eagwbilgbewi'
-socketio = SocketIO(app, async_mode='gevent')
+socketio = SocketIO(app, async_mode='gevent', logger=True, engineio_logger=True)
 packs = packages.Packs(socketio)
 config = packages.Config()
 lastConnect = None
@@ -33,7 +43,7 @@ def test_disconnect():
 
 @app.route('/')
 def hello_world():
-    return render_template('base.html')
+    return render_template('index.html')
 
 
 @app.route('/chart')
@@ -111,6 +121,14 @@ def stopAll():
     return '断开连接成功'
 
 
+@app.route('/errorInfo')
+def errorInfo():
+    p = request.args.get('p')
+    if p in packs.error.keys():
+        return packs.error[p]
+    abort(404)
+
+
 @app.route('/edit')
 def edit():
     method = request.args.get('t')
@@ -124,8 +142,13 @@ def edit():
     if method is None:
         return render_template('edit.html', methods=methods)
     else:
-        return render_template('methods/%s.html' % method, cfg=cfg, showMore=True, methods=methods, selected=method,
-                               name=name)
+        if os.path.exists(os.path.join(template_folder, 'methods/%s.html' % method)):
+            if name is None:
+                name = request.args.get('n')
+            return render_template('methods/%s.html' % method, cfg=cfg, showMore=True, methods=methods, selected=method,
+                                   name=name)
+        else:
+            abort(404)
 
 
 @app.route('/editSubmit', methods=['POST'])
@@ -151,8 +174,6 @@ def error500(_):
 
 
 if __name__ == '__main__':
-    cname = socket.getfqdn(socket.gethostname())
-    ip = socket.gethostbyname(cname)
     port = 8880
     url = 'http://%s:%i' % (ip, port)
     img = qrcode.make(url, border=5)

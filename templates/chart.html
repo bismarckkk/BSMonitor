@@ -104,7 +104,7 @@
                         type: 'line',
                         name: name,
                         data: d[name],
-                        sampling: 'lttb',
+                        //sampling: 'lttb',
                         showSymbol: false
                     })
                 }
@@ -189,7 +189,6 @@
             }, 300)
         })
 
-        const websocket_url = 'http"//' + document.domain + ':' + location.port + '/ws';
         const socket = io('/ws');
         socket.on('data', function (data) {
             if (!paused) {
