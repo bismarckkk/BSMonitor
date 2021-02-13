@@ -99,6 +99,7 @@
         const socket = io('/ws');
         socket.on('error', function (data) {
             console.log(data)
+            refresh()
             showBox('出现异常错误<br/>错误信息请至配置列表或服务器后端查看')
         })
         socket.on('disconnect', function () {

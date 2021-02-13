@@ -3,17 +3,28 @@
 {% block include %}
     <script src="/static/echarts.min.js"></script>
     <script src="/static/socket.io.min.js"></script>
+    <link rel="stylesheet" href="/static/AdminLTE/plugins/bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css">
+    <script src="/static/AdminLTE/plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 {% endblock %}
 {% block pageTitle %}数据监控{% endblock %}
 {% block float_right %}
-    <button onclick="connectLast()" type="button" class="btn btn-primary">重连最后连接设备</button>&nbsp;&nbsp;
-    <button onclick="stopAll()" type="button" class="btn btn-primary">断开所有设备</button>&nbsp;&nbsp;
-    <button onclick="clear2()" type="button" class="btn btn-primary">清空</button>&nbsp;&nbsp;
+    <div style="padding-top: 3px">
+        <div class="bootstrap-switch" style="height: 32px">
+            <input name="anim" type="checkbox" data-size="small" checked>
+        </div>
+    </div>&nbsp;&nbsp;
+    <button onclick="clear2()" type="button" class="btn btn-primary" title="清空"><i class="fas fa-trash-alt"></i>
+    </button>&nbsp;&nbsp;
     <div id="pause">
-        <button onclick="pause1()" type="button" class="btn btn-primary"><i class="fas fa-pause"></i></button>
+        <button onclick="pause1()" type="button" class="btn btn-primary" title="暂停"><i class="fas fa-pause"></i>
+        </button>
     </div>
     <div id="play" style="display: none">
-        <button onclick="play1()" type="button" class="btn btn-primary"><i class="fas fa-play"></i></button>
+        <button onclick="play1()" type="button" class="btn btn-primary" title="继续"><i class="fas fa-play"></i></button>
+    </div>
+    <div id="stopA">
+        &nbsp;&nbsp;<button onclick="stopAll()" type="button" class="btn btn-primary" title="断开所有设备"><i class="fas fa-stop"></i>
+        </button>
     </div>
 {% endblock %}
 {% block main %}
@@ -26,6 +37,8 @@
 {% block script %}
     <script type="text/javascript">
         var paused = false
+        var animate = true
+        var stoped = false
 
         function connectLast() {
             $.get('/startLast', function (data) {
@@ -38,6 +51,11 @@
             $.get('/stopAll', function (data) {
                 showBox(data)
             })
+            stoped = true
+            $('#pause').hide()
+            $('#play').show()
+            $('#stopA').hide()
+            chart.setOption({dataZoom: [{show: true}]})
         }
 
         function pause1() {
@@ -48,9 +66,14 @@
         }
 
         function play1() {
+            if (stoped) {
+                connectLast()
+            }
             paused = false
+            stoped = false
             $('#pause').show()
             $('#play').hide()
+            $('#stopA').show()
             chart.setOption({dataZoom: [{show: false}]})
         }
 
@@ -58,6 +81,7 @@
         var tarH = (height - 210).toString() + "px"
         document.getElementById('chart').style.height = tarH
         let chart = echarts.init(document.getElementById('chart'))
+        var lastLeft = 0
 
         var options = option = {
             xAxis: {
@@ -104,7 +128,7 @@
                         type: 'line',
                         name: name,
                         data: d[name],
-                        //sampling: 'lttb',
+                        sampling: 'lttb',
                         showSymbol: false
                     })
                 }
@@ -122,30 +146,54 @@
                     }
                 }
             }
-            if (max - min < 20) {
-                option.dataZoom = [{
-                    show: false,
-                    startValue: min,
-                    endValue: min + 20
-                }]
-                option.xAxis = {
-                    max: min + 20
+            if (started) {
+                option.xAxis = {min: min}
+                lastLeft = min
+            }
+            if (animate) {
+                if (max - min < 20) {
+                    option.dataZoom = [{
+                        show: false,
+                        startValue: min,
+                        endValue: min + 20
+                    }]
+                    option.xAxis = {
+                        max: min + 20
+                    }
+                } else {
+                    option.dataZoom = [{
+                        show: false,
+                        startValue: max - 20,
+                        endValue: max
+                    }]
+                    option.xAxis = {
+                        max: max
+                    }
                 }
             } else {
-                option.dataZoom = [{
-                    show: false,
-                    startValue: max - 20,
-                    endValue: max
-                }]
-                option.xAxis = {
-                    max: max
+                if (max - min < 20) {
+                    option.dataZoom = [{
+                        show: false,
+                        startValue: min,
+                        endValue: min + 20
+                    }]
+                    option.xAxis = {
+                        max: min + 20
+                    }
+                } else if (max - lastLeft >= 20) {
+                    option.dataZoom = [{
+                        show: false,
+                        startValue: max,
+                        endValue: max + 20
+                    }]
+                    option.xAxis = {
+                        max: max + 20
+                    }
+                    lastLeft = max
                 }
             }
             if (max - min > 300) {
                 clear2()
-            }
-            if (started) {
-                option.xAxis = {min: min}
             }
             console.log(option)
             chart.setOption(option)
@@ -204,5 +252,27 @@
         socket.on('connect_error', function () {
             showBox('与服务器的连接异常断开，请刷新网页重新连接')
         })
+
+        $('[name="anim"]').bootstrapSwitch({
+            onText: "ON",
+            offText: "OFF",
+            onColor: "primary",
+            offColor: "danger",
+            labelText: "动画",
+            labelWidth: "24px",
+            size: "small",
+            onSwitchChange: function (event, state) {
+                if (state === true) {
+                    console.log('animate open')
+                    chart.setOption({animation: true})
+                    animate = true
+                } else {
+                    console.log('animate close')
+                    chart.setOption({animation: false})
+                    animate = false
+                    updateData({})
+                }
+            }
+        });
     </script>
 {% endblock %}

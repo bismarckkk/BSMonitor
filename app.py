@@ -16,9 +16,6 @@ import os
 cname = socket.getfqdn(socket.gethostname())
 ip = socket.gethostbyname(cname)
 
-import eventlet
-
-
 path = os.path.realpath(__file__)
 path = os.path.dirname(path)
 template_folder = os.path.join(path, 'templates')
@@ -28,7 +25,7 @@ app.config['SECRET_KEY'] = 'eagwbilgbewi'
 socketio = SocketIO(app, async_mode='gevent', logger=True, engineio_logger=True)
 packs = packages.Packs(socketio)
 config = packages.Config()
-lastConnect = None
+lastConnect = []
 
 
 @socketio.on('connect', namespace='/ws')
@@ -72,13 +69,11 @@ def pList():
 
 @app.route('/start')
 def startThread():
-    global lastConnect
     name = request.args.get('p')
     if name is None:
         abort(400)
     info = config.readConfig(name)
     if packs.startThread(name, info['type'], info['config']):
-        lastConnect = name
         return '连接成功'
     else:
         return '出现异常错误'
@@ -87,9 +82,12 @@ def startThread():
 @app.route('/startLast')
 def startLast():
     if lastConnect is not None:
-        name = lastConnect
-        info = config.readConfig(name)
-        if packs.startThread(name, info['type'], info['config']):
+        ok = True
+        for name in lastConnect:
+            info = config.readConfig(name)
+            if not packs.startThread(name, info['type'], info['config']):
+                ok = False
+        if ok:
             return '连接成功'
         else:
             return '出现异常错误'
@@ -111,9 +109,10 @@ def stopThread():
 
 @app.route('/stopAll')
 def stopAll():
+    global lastConnect
     try:
-        names = copy.deepcopy(list(packs.packs.keys()))
-        for name in names:
+        lastConnect = copy.deepcopy(list(packs.packs.keys()))
+        for name in lastConnect:
             packs.stopThread(name)
     except:
         print(traceback.format_exc())
@@ -176,12 +175,11 @@ def error500(_):
 if __name__ == '__main__':
     port = 8880
     url = 'http://%s:%i' % (ip, port)
-    img = qrcode.make(url, border=5)
-    img.save('./static/qrcode.jpg')
+    webbrowser.open(url)
     packs.start()
 
     # server = WSGIServer(('127.0.0.1', 8880), app)
     # webbrowser.open(url)
     # server.serve_forever()
 
-    socketio.run(app, host='0.0.0.0', port=port, debug=True)
+    socketio.run(app, host='0.0.0.0', port=port)

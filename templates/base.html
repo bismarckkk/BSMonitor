@@ -11,6 +11,7 @@
     <script src="/static/AdminLTE/plugins/jquery/jquery.min.js"></script>
     <script src="/static/AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="/static/AdminLTE/dist/js/adminlte.min.js"></script>
+    <script src="/static/qrcode.min.js"></script>
     {% block include %}{% endblock %}
 </head>
 <body class="hold-transition sidebar-mini">
@@ -27,7 +28,7 @@
                     <i class="fas fa-qrcode"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" style="width: 182px">
-                    <img width="180px" align="center" src="/static/qrcode.jpg">
+                    <div id="qrcode" style="width: 178px; height: 178px; padding: 10px"></div>
                     <div align="center">
                         手机扫码同步预览<br>
                         <a style="font-size: small">必须在同一局域网下</a>
@@ -82,11 +83,11 @@
         <div class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
-                    <div class="col-sm-4">
+                    <div class="col-md-2">
                         <h1 class="m-0">{% block pageTitle %}{% endblock %}</h1>
                     </div>
-                    <div class="col-sm-8">
-                        <ol class="breadcrumb float-sm-right">
+                    <div class="col-md-4">
+                        <ol class="breadcrumb float-md-right">
                             {% block float_right %}{% endblock %}
                         </ol>
                     </div>
@@ -181,6 +182,12 @@
         document.getElementById('error-info').innerHTML = text
         jQuery("#mbox").fadeIn("fast")
     }
+
+    new QRCode(document.getElementById('qrcode'), {
+        text: window.location.href,
+        height: 160,
+        width: 160
+    })
 </script>
 {% block script %}{% endblock %}
 </body>
