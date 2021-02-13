@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, abort, redirect, url_for
 import socket
 import webbrowser
-import qrcode
 import packages
 import traceback
 import copy
@@ -175,11 +174,6 @@ def error500(_):
 if __name__ == '__main__':
     port = 8880
     url = 'http://%s:%i' % (ip, port)
-    webbrowser.open(url)
     packs.start()
-
-    # server = WSGIServer(('127.0.0.1', 8880), app)
-    # webbrowser.open(url)
-    # server.serve_forever()
-
+    webbrowser.open(url)
     socketio.run(app, host='0.0.0.0', port=port)
