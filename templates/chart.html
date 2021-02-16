@@ -1,20 +1,16 @@
 {% extends "base.html" %}
-{% block title %}数据监控{% endblock %}
+{% block title %}地图监控{% endblock %}
 {% block include %}
     <script src="/static/echarts.min.js"></script>
     <script src="/static/socket.io.min.js"></script>
-    <link rel="stylesheet" href="/static/AdminLTE/plugins/bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css">
-    <script src="/static/AdminLTE/plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 {% endblock %}
-{% block pageTitle %}数据监控{% endblock %}
+{% block pageTitle %}地图监控{% endblock %}
 {% block float_right %}
     <div style="padding-top: 3px">
         <div class="bootstrap-switch" style="height: 32px">
             <input name="anim" type="checkbox" data-size="small" checked>
         </div>
     </div>&nbsp;&nbsp;
-    <button onclick="clear2()" type="button" class="btn btn-primary" title="清空"><i class="fas fa-trash-alt"></i>
-    </button>&nbsp;&nbsp;
     <div id="pause">
         <button onclick="pause1()" type="button" class="btn btn-primary" title="暂停"><i class="fas fa-pause"></i>
         </button>
@@ -30,7 +26,7 @@
 {% endblock %}
 {% block main %}
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12" id="ccc">
             <div id="chart"></div>
         </div>
     </div>
@@ -40,6 +36,8 @@
         var paused = false
         var animate = true
         var stoped = false
+
+        console.log(document.getElementById('ccc').clientWidth)
 
         function connectLast() {
             $.get('/startLast', function (data) {
@@ -78,30 +76,81 @@
             chart.setOption({dataZoom: [{show: false}]})
         }
 
-        var height = document.documentElement.clientHeight
-        var tarH = (height - 210).toString() + "px"
+        var whRate = 2
+        var width = document.getElementById('ccc').clientWidth
+        var tarH = (width / whRate).toString() + "px"
         document.getElementById('chart').style.height = tarH
         let chart = echarts.init(document.getElementById('chart'))
-        var lastLeft = 0
 
-        var options = option = {
-            xAxis: {
-                type: 'value'
-            },
-            yAxis: {
-                type: 'value'
-            },
+        var options = {
             grid: {
-                left: 30,
-                right: 10,
-                top: 8,
+                left: 35,
+                right: 15,
+                top: 10,
                 bottom: 20
             },
-            legend: {},
-            tooltip: {
-                trigger: 'axis'
+            xAxis: {
+                type: 'value',
+                show: false,
+                scale: true
             },
-            dataZoom: [{}]
+            yAxis: {
+                type: 'value',
+                show: false,
+                scale: true
+            },
+            visualMap: {
+                type: 'piecewise',
+                categories: [
+                    'Background', 'Obstacle', 'Robot', 'Goal', 'Other1', 'Other2', 'Other3'
+                ],
+                inRange: {
+                    color: {
+                        'Background': '#2C3E50',
+                        'Obstacle': '#E74C3C',
+                        'Robot': '#3498DB',
+                        'Goal': '#EB7F00',
+                        'Other1': '#2980B9',
+                        'Other2': '#ACF0F2',
+                        'Other3': '#1695A3',
+                        '': '#F6F792'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Background',
+                    type: 'heatmap',
+                    data: [],
+                    emphasis: {
+                        show: false
+                    },
+                    zlevel: 0
+                },
+                {
+                    name: 'other',
+                    type: 'heatmap',
+                    data: [],
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    selectedMode: 'single',
+                    zlevel: 1
+                },
+                {
+                    name: 'path1',
+                    type: 'line',
+                    data: []
+                },
+                {
+                    name: 'path2',
+                    type: 'line',
+                    data: []
+                }
+            ]
         };
 
         chart.setOption(options)
@@ -109,119 +158,15 @@
         var data = []
 
         function updateData(d) {
-            var option = {series: [], dataZoom: []}
-            var started = false
-            if (data.length === 0) {
-                started = true
+            var option = {series: [{}, {}, {}, {}]}
+            if (d.background.length !== 0) {
+                var backg = []
+
             }
-            var keys = Object.keys(d)
-            for (var i = 0; i < keys.length; i++) {
-                let name = keys[i]
-                var finded = false
-                for (var j = 0; j < data.length; j++) {
-                    if (data[j].name === name) {
-                        finded = true
-                        data[j].data.push.apply(data[j].data, d[name])
-                    }
-                }
-                if (!finded) {
-                    data.push({
-                        type: 'line',
-                        name: name,
-                        data: d[name],
-                        sampling: 'lttb',
-                        showSymbol: false
-                    })
-                }
-            }
-            option.series = data
-            var min = data[0].data[0][0]
-            var max = data[0].data[0][0]
-            for (var i = 0; i < data.length; i++) {
-                for (var j = 0; j < data[i].data.length; j++) {
-                    if (data[i].data[j][0] > max) {
-                        max = data[i].data[j][0]
-                    }
-                    if (data[i].data[j][0] < min) {
-                        min = data[i].data[j][0]
-                    }
-                }
-            }
-            if (started) {
-                option.xAxis = {min: min}
-                lastLeft = min
-            }
-            if (animate) {
-                if (max - min < 20) {
-                    option.dataZoom = [{
-                        show: false,
-                        startValue: min,
-                        endValue: min + 20
-                    }]
-                    option.xAxis = {
-                        max: min + 20
-                    }
-                } else {
-                    option.dataZoom = [{
-                        show: false,
-                        startValue: max - 20,
-                        endValue: max
-                    }]
-                    option.xAxis = {
-                        max: max
-                    }
-                }
-            } else {
-                if (max - min < 20) {
-                    option.dataZoom = [{
-                        show: false,
-                        startValue: min,
-                        endValue: min + 20
-                    }]
-                    option.xAxis = {
-                        max: min + 20
-                    }
-                } else if (max - lastLeft >= 20) {
-                    option.dataZoom = [{
-                        show: false,
-                        startValue: max,
-                        endValue: max + 20
-                    }]
-                    option.xAxis = {
-                        max: max + 20
-                    }
-                    lastLeft = max
-                }
-            }
-            if (max - min > 300) {
-                clear2()
-            }
-            console.log(option)
-            chart.setOption(option)
         }
 
         function clear2() {
-            var option = {}
-            var min = data[0].data[0][0]
-            for (var i = 0; i < data.length; i++) {
-                for (var j = 0; j < data[i].data.length; j++) {
-                    if (data[i].data[j][0] < min) {
-                        min = data[i].data[j][0]
-                    }
-                }
-            }
-            option.dataZoom = [{
-                show: false,
-                startValue: min,
-                endValue: min + 20
-            }]
-            option.xAxis = {
-                max: min + 20,
-                min: min
-            }
-            data = []
-            option.series = data
-            chart.setOption(option)
+
         }
 
         window.onresize = function () {
@@ -232,8 +177,8 @@
 
         $('#menu').click(function () {
             setTimeout(function () {
-                var height = document.documentElement.clientHeight
-                tarH = (height - 210).toString() + "px"
+                width = document.getElementById('ccc').clientWidth
+                tarH = (width / whRate).toString() + "px"
                 chart.resize({height: tarH})
             }, 300)
         })
@@ -253,60 +198,5 @@
         socket.on('connect_error', function () {
             showBox('与服务器的连接异常断开，请刷新网页重新连接')
         })
-
-        $('[name="anim"]').bootstrapSwitch({
-            onText: "ON",
-            offText: "OFF",
-            onColor: "primary",
-            offColor: "danger",
-            labelText: "动画",
-            labelWidth: "24px",
-            size: "small",
-            onSwitchChange: function (event, state) {
-                if (state === true) {
-                    console.log('animate open')
-                    chart.setOption({animation: true})
-                    animate = true
-                } else {
-                    console.log('animate close')
-                    chart.setOption({animation: false})
-                    animate = false
-                    var option = {}
-                    var min = data[0].data[0][0]
-                    var max = data[0].data[0][0]
-                    for (var i = 0; i < data.length; i++) {
-                        for (var j = 0; j < data[i].data.length; j++) {
-                            if (data[i].data[j][0] > max) {
-                                max = data[i].data[j][0]
-                            }
-                            if (data[i].data[j][0] < min) {
-                                min = data[i].data[j][0]
-                            }
-                        }
-                    }
-                    if (max - min < 20) {
-                        option.dataZoom = [{
-                            show: false,
-                            startValue: min,
-                            endValue: min + 20
-                        }]
-                        option.xAxis = {
-                            max: min + 20
-                        }
-                    } else {
-                        option.dataZoom = [{
-                            show: false,
-                            startValue: max,
-                            endValue: max + 20
-                        }]
-                        option.xAxis = {
-                            max: max + 20
-                        }
-                        lastLeft = max
-                    }
-                    chart.setOption(option)
-                }
-            }
-        });
     </script>
 {% endblock %}

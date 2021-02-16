@@ -1,0 +1,7 @@
+{% extends 'edit.html' %}
+{% block form %}
+    <div class="form-group">
+        <label>目标服务器IP:Port</label>
+        <input class="form-control" name="target" value="{{ cfg['target'] }}">
+    </div>
+{% endblock %}
