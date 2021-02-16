@@ -103,7 +103,14 @@ class Pub(Base):
             self.reader.register(var, adr, cat)
 
     def m(self):
-        p = self.reader.readAll()
-        print(p)
+        try:
+            p = self.reader.readAll()
+        except:
+            try:
+                del self.reader
+            except:
+                pass
+            self.init()
+            p = self.reader.readAll()
         self.put(p)
         time.sleep(1 / self.fre)
